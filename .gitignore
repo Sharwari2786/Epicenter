@@ -1,0 +1,9 @@
+# Ignore heavy dependencies
+backend/node_modules/
+
+# Ignore the secret vault (API Key)
+backend/.env
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
