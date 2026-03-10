@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epicenter - Global News Aggregator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="brand-title">
+                <h1>Epi<span>center</span></h1>
+                <p class="site-details">A live global news aggregator engineered by Sharwari.</p>
+                <p class="last-updated">System Status: Live | Last Sync: <span id="sync-time">---</span></p>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search global events...">
+                <button id="search-button">Search</button>
+            </div>
+        </div>
+        
+        <div class="categories">
+            <button class="nav-item active" onclick="handleCategory('general', event)">General</button>
+            <button class="nav-item" onclick="handleCategory('business', event)">Business</button>
+            <button class="nav-item" onclick="handleCategory('technology', event)">Technology</button>
+            <button class="nav-item" onclick="handleCategory('sports', event)">Sports</button>
+            <button class="nav-item" onclick="handleCategory('entertainment', event)">Entertainment</button>
+        </div>
+    </header>
+
+    <main id="news-container">
+    </main>
+
+    <footer>
+        © 2026 Epicenter • Powered by NewsAPI • Built by Sharwari with &#9829;
+    </footer>
+
+    <script src="app.js"></script> 
+</body>
+</html>

@@ -1,0 +1,314 @@
+/* Reset and Modern Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    color: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Keeps footer at the bottom */
+}
+
+/* Premium Header */
+header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Branding */
+.brand-title h1 {
+    color: #ffffff;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.brand-title h1 span {
+    color: #3b82f6;
+}
+
+.site-details {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.last-updated {
+    color: #34d399; /* Green success color */
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Search Bar Styling - Premium Corporate Look */
+.search-bar {
+    display: flex;
+    background: #ffffff;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.search-bar input {
+    padding: 5px 15px;
+    border: none;
+    outline: none;
+    width: 320px;
+    font-size: 0.95rem;
+    color: #1e293b;
+    background: transparent;
+}
+
+.search-bar button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #0f172a;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    transition: background 0.3s ease;
+}
+
+.search-bar button:hover {
+    background-color: #3b82f6;
+}
+
+/* Category Navigation */
+.categories {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    overflow-x: auto;
+}
+
+.nav-item {
+    padding: 8px 20px;
+    border: none;
+    background-color: transparent;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+    color: #1e293b;
+    background-color: #f1f5f9;
+}
+
+.nav-item.active {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+/* News Grid & Premium Cards */
+main {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    padding: 50px 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+    flex-grow: 1; /* Pushes the footer to the bottom */
+    width: 100%;
+}
+
+.news-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    transition: all 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #f1f5f9;
+    animation: fadeIn 0.6s ease; /* Merged Animation */
+}
+
+.news-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Image Zoom & Fade Effect */
+.img-container {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background-color: #e2e8f0; 
+}
+
+.news-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease, opacity 0.5s ease-in;
+    opacity: 0; 
+}
+
+.news-card img.loaded {
+    opacity: 1; 
+}
+
+.news-card:hover img {
+    transform: scale(1.08);
+}
+
+.news-content {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.news-source {
+    display: inline-block;
+    background-color: #f1f5f9;
+    color: #475569;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    align-self: flex-start;
+}
+
+.news-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    color: #0f172a;
+}
+
+.news-desc {
+    font-size: 0.95rem;
+    color: #64748b;
+    flex-grow: 1;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+/* Read Article Button - Full Width Dashboard Style */
+.read-more {
+    display: block;
+    width: 100%; 
+    text-align: center;
+    padding: 12px;
+    background-color: #f1f5f9; 
+    color: #0f172a;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    margin-top: auto; 
+}
+
+.read-more:hover {
+    background-color: #0f172a; 
+    color: #ffffff;
+    border-color: #0f172a;
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+}
+
+/* Loading Spinner */
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    grid-column: 1 / -1;
+    padding: 50px 0;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #e2e8f0;
+    border-top: 5px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Footer Styling */
+footer {
+    background-color: #0f172a;
+    color: #94a3b8;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    .search-bar {
+        width: 100%;
+    }
+    .search-bar input {
+        width: 100%;
+    }
+    .categories {
+        justify-content: flex-start;
+    }
+}
