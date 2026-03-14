@@ -1,0 +1,35 @@
+:root {
+    --bg-color: #f0f2f5;
+    --card-bg: #ffffff;
+    --text-main: #1a1a1a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --header-gradient: linear-gradient(135deg, #1e293b, #0f172a);
+    --input-bg: #ffffff;
+    --bg-main: #f8fafc;
+    --text-primary: #0f172a;
+}
+
+/* CHANGE THIS LINE: From [data-theme="dark"] to body.dark-mode */
+body.dark-mode {
+    --bg-color: #090e1c;
+    --card-bg: #253041;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --header-gradient: linear-gradient(135deg, #020617, #0f172a); 
+    --input-bg: #1e293b;
+    /* Use the variables you actually used in your body/cards */
+    --bg-main: #0f172a !important;
+    --text-primary: #f8fafc !important;
+
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease; /* Added color transition too */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+

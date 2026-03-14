@@ -1,0 +1,38 @@
+.app-container {
+    display: flex;
+    width: 100%;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 70px; /* FIXED: Prevents content from being hidden under sidebar */
+    padding: 30px;
+    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+}
+
+
+/* This tells the news to move for BOTH the click (.expanded) AND the hover (:hover) */
+.side-panel.expanded ~ .main-content,
+.side-panel:hover ~ .main-content {
+    margin-left: 220px; /* This must match your sidebar's expanded width */
+}
+/* Utility to ensure views fade in nicely */
+.view-section {
+    animation: fadeIn 0.4s ease-in;
+}
+.main-content {
+    margin-left: 70px; /* This creates the gap for the sidebar */
+    padding: 20px;
+}
+
+#news-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

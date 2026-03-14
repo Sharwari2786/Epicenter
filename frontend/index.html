@@ -4,38 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Epicenter - Global News Aggregator</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/navigation.css">
+    <link rel="stylesheet" href="css/news-cards.css">
 </head>
 <body>
+
     <header>
         <div class="header-container">
             <div class="brand-title">
                 <h1>Epi<span>center</span></h1>
                 <p class="site-details">A live global news aggregator engineered by Sharwari.</p>
-                <p class="last-updated">System Status: Live | Last Sync: <span id="sync-time">---</span></p>
+                <p class="last-updated">System Status: Live | Sync: <span id="sync-time">---</span></p>
             </div>
-            <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Search global events...">
-                <button id="search-button">Search</button>
+            
+            <div class="header-actions">
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search global events...">
+                    <button id="search-button">Search</button>
+                </div>
             </div>
         </div>
         
-        <div class="categories">
-            <button class="nav-item active" onclick="handleCategory('general', event)">General</button>
-            <button class="nav-item" onclick="handleCategory('business', event)">Business</button>
-            <button class="nav-item" onclick="handleCategory('technology', event)">Technology</button>
-            <button class="nav-item" onclick="handleCategory('sports', event)">Sports</button>
-            <button class="nav-item" onclick="handleCategory('entertainment', event)">Entertainment</button>
-        </div>
     </header>
 
-    <main id="news-container"></main>
+    <div class="nav-action-bar">
+    <button id="menu-toggle" class="menu-btn-main">☰</button>
+    
+    <div class="categories">
+        <button class="nav-item active" onclick="handleCategory('general', event)">General</button>
+        <button class="nav-item" onclick="handleCategory('business', event)">Business</button>
+        <button class="nav-item" onclick="handleCategory('technology', event)">Technology</button>
+        <button class="nav-item" onclick="handleCategory('sports', event)">Sports</button>
+        <button class="nav-item" onclick="handleCategory('entertainment', event)">Entertainment</button>
+        <button class="nav-item pulse-btn" onclick="handleLocalPulse(event)">📍 Local Pulse</button>
+    </div>
+</div>
+
+<div class="app-container">
+    <aside class="side-panel" id="side-panel">
+        <nav class="side-nav">
+            <a href="index.html" class="side-item active">
+                <span class="icon">🏠</span>
+                <span class="link-text">Home</span>
+            </a>
+            <a href="dashboard.html" class="side-item">
+                <span class="icon">📊</span>
+                <span class="link-text">Dashboard</span>
+            </a>
+            <button class="side-item" id="view-saved">
+                <span class="icon">🔖</span>
+                <span class="link-text">Saved News</span>
+            </button>
+            <div class="side-divider"></div>
+            <button class="side-item" id="theme-toggle">
+                <span class="icon">🌓</span>
+                <span class="link-text">Toggle Mode</span>
+            </button>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div id="news-container"></div>
+    </main>
+</div>
 
     <footer>
         © 2026 Epicenter • Powered by NewsAPI • Built by Sharwari with &#9829;
     </footer>
 
-    <script src="app.js"></script> 
+    <script src="js/ui.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
