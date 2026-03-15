@@ -10,6 +10,7 @@
     --text-primary: #0f172a;
 }
 
+
 /* CHANGE THIS LINE: From [data-theme="dark"] to body.dark-mode */
 body.dark-mode {
     --bg-color: #090e1c;
@@ -23,6 +24,12 @@ body.dark-mode {
     --bg-main: #0f172a !important;
     --text-primary: #f8fafc !important;
 
+}
+
+
+/* Add this to ensure the very top layer is colored */
+html {
+    background-color: var(--bg-color);
 }
 
 body {

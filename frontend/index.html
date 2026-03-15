@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+    // This MUST be the very first thing in the <head>
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+    } else {
+        document.documentElement.classList.remove('dark-mode');
+    }
+</script>
     <title>Epicenter - Global News Aggregator</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -13,6 +21,7 @@
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="css/news-cards.css">
+    <link rel="stylesheet" href="css/footer.css">
 </head>
 <body>
 
@@ -35,20 +44,23 @@
     </header>
 
     <div class="nav-action-bar">
-    <button id="menu-toggle" class="menu-btn-main">☰</button>
-    
-    <div class="categories">
-        <button class="nav-item active" onclick="handleCategory('general', event)">General</button>
-        <button class="nav-item" onclick="handleCategory('business', event)">Business</button>
-        <button class="nav-item" onclick="handleCategory('technology', event)">Technology</button>
-        <button class="nav-item" onclick="handleCategory('sports', event)">Sports</button>
-        <button class="nav-item" onclick="handleCategory('entertainment', event)">Entertainment</button>
-        <button class="nav-item pulse-btn" onclick="handleLocalPulse(event)">📍 Local Pulse</button>
+        <button id="menu-toggle" class="menu-btn-main">☰</button>
+        
+        <div class="categories">
+            <button class="nav-item active" onclick="handleCategory('general', event)">General</button>
+            <button class="nav-item" onclick="handleCategory('business', event)">Business</button>
+            <button class="nav-item" onclick="handleCategory('technology', event)">Technology</button>
+            <button class="nav-item" onclick="handleCategory('sports', event)">Sports</button>
+            <button class="nav-item" onclick="handleCategory('entertainment', event)">Entertainment</button>
+            <button class="nav-item pulse-btn" onclick="handleLocalPulse(event)">📍 Local Pulse</button>
+        </div>
     </div>
-</div>
 
 <div class="app-container">
+
+    
     <aside class="side-panel" id="side-panel">
+        
         <nav class="side-nav">
             <a href="index.html" class="side-item active">
                 <span class="icon">🏠</span>
@@ -76,7 +88,8 @@
 </div>
 
     <footer>
-        © 2026 Epicenter • Powered by NewsAPI • Built by Sharwari with &#9829;
+        <p>© 2026 **Epicenter** • Powered by NewsAPI</p>
+        <p>Built by **Sharwari** with <span class="heart">❤️</span></p>
     </footer>
 
     <script src="js/ui.js"></script>

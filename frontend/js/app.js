@@ -26,7 +26,7 @@ function handleCategory(category, event) {
     fetchNews('', category);
 }
 
-// Local Pulse (On Click)
+// Local Pulse
 async function handleLocalPulse(event) {
     document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
@@ -47,5 +47,4 @@ viewSavedBtn.addEventListener('click', () => {
 
 searchButton.addEventListener('click', () => fetchNews(searchInput.value));
 
-// Init
 window.addEventListener('DOMContentLoaded', () => fetchNews());

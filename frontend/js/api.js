@@ -4,22 +4,28 @@ const syncTimeDisplay = document.getElementById('sync-time');
 // Fetch News from Node.js
 async function fetchNews(query = '', category = 'general') {
     try {
-        newsContainer.innerHTML = `<div class="loader-container">Loading news...</div>`;
+        if (newsContainer) newsContainer.innerHTML = `<div class="loader-container">Loading news...</div>`;
+        
         const response = await fetch(`http://localhost:3000/api/news?query=${encodeURIComponent(query)}&category=${category}`);
         const data = await response.json();
 
         if (data.status === "ok") {
             currentArticles = data.articles;
             renderNews(currentArticles);
-            syncTimeDisplay.innerText = new Date().toLocaleTimeString();
+            
+            if (syncTimeDisplay) {
+                syncTimeDisplay.innerText = new Date().toLocaleTimeString();
+            }
         }
     } catch (error) {
-        newsContainer.innerHTML = `<h3>Server Error.</h3>`;
+        if (newsContainer) newsContainer.innerHTML = `<h3>Server Error.</h3>`;
+        console.error("Fetch error:", error);
     }
 }
 
 // Render Grid
 function renderNews(articles) {
+    if (!newsContainer) return;
     newsContainer.innerHTML = ''; 
     articles.forEach((article, index) => {
         if (!article.urlToImage) return;

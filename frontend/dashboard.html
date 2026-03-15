@@ -5,83 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Epicenter - Analytics Dashboard</title>
     
+    <script>
+        // Immediate theme check to prevent white flash
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
+
     <header>
         <div class="header-container">
             <div class="brand-title">
                 <h1>Epi<span>center</span></h1>
-                <p class="site-details">Analytics Mode | Analyse the data | Wake up to reality</p>
-                <p class="last-updated">System Status: Live | Sync: <span id="sync-time">---</span></p>
+                <p class="site-details">Analytics Mode | Worldwide Media Coverage | Wake Up to reality</p>
+                <p class="last-updated">Visualizing your digital footprint and cross-border news consumption.</p>
             </div>
         </div>
-        </header>
+    </header>
+
+    <div class="nav-action-bar">
+        <button id="menu-toggle" class="menu-btn-main">☰</button>
+        <div class="signal-bar">
+            <div class="frosted-glass">
+                <div class="signal-line">
+                    <div class="pulse-wave"></div>
+                </div>
+                <div class="signal-status">
+                    <span class="status-dot"></span>
+                    LIVE DATA STREAM
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="app-container">
         <aside class="side-panel" id="side-panel">
-            
-
+    
             <nav class="side-nav">
-                <a href="index.html" class="side-item active">
-                    <span class="icon">🏠</span>
-                    <span class="link-text">Home</span>
+                <a href="index.html" class="side-item">
+                    <span class="icon">🏠</span><span class="link-text">Home</span>
                 </a>
-                <a href="dashboard.html" class="side-item">
-                    <span class="icon">📊</span>
-                    <span class="link-text">Dashboard</span>
+                <a href="dashboard.html" class="side-item active">
+                    <span class="icon">📊</span><span class="link-text">Dashboard</span>
                 </a>
                 <button class="side-item" id="view-saved">
-                    <span class="icon">🔖</span>
-                    <span class="link-text">Saved News</span>
+                    <span class="icon">🔖</span><span class="link-text">Saved News</span>
                 </button>
-                
                 <div class="side-divider"></div>
-                
                 <button class="side-item" id="theme-toggle">
-                    <span class="icon">🌓</span>
-                    <span class="link-text">Toggle Mode</span>
+                    <span class="icon">🌓</span><span class="link-text">Toggle Mode</span>
                 </button>
             </nav>
         </aside>
 
         <main class="main-content">
             <div class="dash-header">
-                <h2>Real-Time Analytics</h2>
-                <p>Visualizing the global news landscape.</p>
+                <h2>Dashboard Analytics</h2>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Scanned</h3>
-                    <p id="stat-total">0</p>
+            <section class="stats-grid">
+                <div class="stat-card blue-gradient">
+                    <div class="stat-header">
+                        <span class="stat-label">Total Scanned</span>
+                        <span class="stat-icon">📡</span>
+                    </div>
+                    <div class="stat-value" id="stat-total">32,659</div>
+                    <div class="stat-footer">Global Data Intake</div>
                 </div>
-                <div class="stat-card">
-                    <h3>Saved by You</h3>
-                    <p id="stat-saved">0</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Sync Status</h3>
-                    <p style="font-size: 1.2rem; color: #10b981;">Online</p>
-                </div>
-            </div>
 
-            <div class="chart-container">
-                <canvas id="newsChart"></canvas>
-            </div>
+                <div class="stat-card purple-gradient">
+                    <div class="stat-header">
+                        <span class="stat-label">Intelligence Saved</span>
+                        <span class="stat-icon">🔖</span>
+                    </div>
+                    <div class="stat-value" id="stat-saved">0</div>
+                    <div class="stat-footer">User Curation</div>
+                </div>
+
+                <div class="stat-card green-gradient">
+                    <div class="stat-header">
+                        <span class="stat-label">Broadcast Volume</span>
+                        <span class="stat-icon">🌐</span>
+                    </div>
+                    <div class="stat-value" id="stat-broadcast">8,540</div>
+                    <div class="stat-footer">Active Live Feed</div>
+                </div>
+
+                <div class="stat-card orange-gradient">
+                    <div class="stat-header">
+                        <span class="stat-label">Sentiment Score</span>
+                        <span class="stat-icon">🧠</span>
+                    </div>
+                    <div class="stat-value" id="stat-sentiment">8.5</div>
+                    <div class="stat-footer">Global Mood Index</div>
+                </div>
+            </section>
+
+            <section class="chart-main-section">
+                <div class="chart-card">
+                    <div class="chart-header-row">
+                        <div class="chart-info">
+                            <h3>Global Sentiment Pulse</h3>
+                            <p>Real-time analysis: Positive vs. Negative trends</p>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item"><span class="dot pos"></span> Positive</div>
+                            <div class="legend-item"><span class="dot neg"></span> Negative</div>
+                        </div>
+                    </div>
+                    <div class="main-chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="details-grid">
+                <div class="sub-card">
+                    <h3>News by Domain</h3>
+                    <div class="canvas-holder">
+                        <canvas id="domainChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="sub-card">
+                    <h3>Weekly Reading</h3>
+                    <div class="canvas-holder">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="sub-card">
+                    <h3>Trending Topics</h3>
+                    <div class="trending-tags" id="trending-cloud">
+                        <span class="tag high">#Technology</span>
+                        <span class="tag mid">#GlobalMarkets</span>
+                        <span class="tag low">#Health</span>
+                        <span class="tag high">#AI</span>
+                        <span class="tag mid">#Energy</span>
+                        <span class="tag low">#Startups</span>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/theme.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
