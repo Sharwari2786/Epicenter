@@ -27,8 +27,16 @@ app.get('/api/news', async (req, res) => {
         const response = await axios.get(fetchUrl);
         res.json(response.data); 
     } catch (error) {
-        res.status(500).json({ status: "error", message: "API Error" });
+    // This prints the actual reason from NewsAPI in your terminal
+    if (error.response) {
+        console.log("--- NEWSAPI ERROR ---");
+        console.log("Status:", error.response.status); // Will likely be 429
+        console.log("Message:", error.response.data.message); 
+    } else {
+        console.log("Error:", error.message);
     }
+    res.status(500).json({ status: "error", message: "API Error" });
+}
 });
 
 app.listen(PORT, () => console.log(`🚀 Epicenter Server live on port ${PORT}`));
