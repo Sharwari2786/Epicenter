@@ -11,8 +11,13 @@ async function fetchNews(query = '', category = 'general') {
 
         if (data.status === "ok") {
             currentArticles = data.articles;
+            
+            // --- THE BRIDGE: Save data for the dashboard ---
+            localStorage.setItem('latestNews', JSON.stringify(currentArticles));
+            
             renderNews(currentArticles);
             
+            // Safety check for the sync display
             if (syncTimeDisplay) {
                 syncTimeDisplay.innerText = new Date().toLocaleTimeString();
             }

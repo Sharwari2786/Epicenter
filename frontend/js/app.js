@@ -13,6 +13,8 @@ window.toggleBookmark = (index) => {
     if (existsIndex > -1) {
         bookmarks.splice(existsIndex, 1);
     } else {
+        // Add a 'savedAt' property so the chart can track it
+        article.savedAt = new Date().toISOString(); 
         bookmarks.push(article);
     }
     localStorage.setItem('epicenter_bookmarks', JSON.stringify(bookmarks));
@@ -26,7 +28,7 @@ function handleCategory(category, event) {
     fetchNews('', category);
 }
 
-// Local Pulse
+// Local Pulse (On Click)
 async function handleLocalPulse(event) {
     document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
@@ -47,4 +49,5 @@ viewSavedBtn.addEventListener('click', () => {
 
 searchButton.addEventListener('click', () => fetchNews(searchInput.value));
 
+// Init
 window.addEventListener('DOMContentLoaded', () => fetchNews());

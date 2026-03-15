@@ -104,6 +104,6 @@
 }
 
 .bookmark-btn.saved { 
-    background: #ef4444; 
-    color: white; 
+    background: white; 
+    color: red; 
 }
