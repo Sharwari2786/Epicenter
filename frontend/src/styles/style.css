@@ -1,0 +1,36 @@
+/* src/style.css */
+
+:root {
+  --bg-main: #0F172A;
+  --bg-card: #1E293B;
+  --accent: #38BDF8;
+  --text-white: #F8FAFC;
+  --text-gray: #94A3B8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-white);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* The Magic Hover Effect */
+.news-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.05); /* Default subtle border */
+}
+
+.news-card-hover:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent) !important;
+  background-color: #243147; /* Slightly lighter than --bg-card */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 
+              0 10px 10px -5px rgba(56, 189, 248, 0.2); /* Combined shadow and blue glow */
+}

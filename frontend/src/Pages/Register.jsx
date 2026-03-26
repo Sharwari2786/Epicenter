@@ -1,0 +1,91 @@
+import { useState } from "react"; // Add this
+import axios from "axios"; // Add this
+import { useNavigate } from "react-router-dom";
+import { User, Mail, Lock, ArrowRight } from "lucide-react";
+
+
+export default function Register() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: ""
+  });
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      // 2. Send data to your Node.js server!
+      const res = await axios.post("http://localhost:5000/api/auth/register", formData);
+      
+      if (res.status === 201) {
+        alert("Account Created Successfully! Log in now.");
+        navigate("/login");
+      }
+    } catch (err) {
+      alert(err.response?.data?.msg || "Registration failed. Try again.");
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0F172A", padding: "20px" }}>
+      <div style={{ background: "#1E293B", padding: "40px", borderRadius: "24px", width: "100%", maxWidth: "420px", border: "1px solid rgba(56, 189, 248, 0.1)" }}>
+        
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <h2 style={{ color: "white", fontSize: "1.8rem", fontWeight: 800 }}>Join Epicenter</h2>
+          <p style={{ color: "#94A3B8", fontSize: "0.9rem", marginTop: "8px" }}>Create an account to personalize your news feed.</p>
+        </div>
+
+        <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            {/* Full Name Field */}
+            <div style={{ position: "relative" }}>
+              <User size={18} color="#38BDF8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+              <input 
+                type="text" 
+                placeholder="Full Name" 
+                value={formData.name} // LINK TO STATE
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })} // UPDATE STATE
+                required 
+                style={{ width: "100%", background: "#0F172A", border: "1px solid #334155", borderRadius: "12px", padding: "12px 12px 12px 40px", color: "white", outline: "none" }} 
+              />
+            </div>
+
+            {/* Email Field */}
+            <div style={{ position: "relative" }}>
+              <Mail size={18} color="#38BDF8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+              <input 
+                type="email" 
+                placeholder="Email Address" 
+                value={formData.email} // LINK TO STATE
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })} // UPDATE STATE
+                required 
+                style={{ width: "100%", background: "#0F172A", border: "1px solid #334155", borderRadius: "12px", padding: "12px 12px 12px 40px", color: "white", outline: "none" }} 
+              />
+            </div>
+
+            {/* Password Field */}
+            <div style={{ position: "relative" }}>
+              <Lock size={18} color="#38BDF8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+              <input 
+                type="password" 
+                placeholder="Create Password" 
+                value={formData.password} // LINK TO STATE
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })} // UPDATE STATE
+                required 
+                style={{ width: "100%", background: "#0F172A", border: "1px solid #334155", borderRadius: "12px", padding: "12px 12px 12px 40px", color: "white", outline: "none" }} 
+              />
+            </div>
+
+            <button type="submit" style={{ background: "#38BDF8", color: "#0F172A", fontWeight: 700, padding: "12px", borderRadius: "12px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+              Create Account <ArrowRight size={18} />
+            </button>
+          </form>
+
+        <p style={{ color: "#94A3B8", fontSize: "0.85rem", textAlign: "center", marginTop: "24px" }}>
+          Already have an account? <span onClick={() => navigate("/login")} style={{ color: "#38BDF8", cursor: "pointer", fontWeight: 600 }}>Log In</span>
+        </p>
+      </div>
+    </div>
+  );
+}
