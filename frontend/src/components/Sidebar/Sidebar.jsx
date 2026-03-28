@@ -9,7 +9,7 @@ export default function Sidebar() {
   const MENU_ITEMS = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/" },
     { icon: Home, label: "Daily Feed", path: "/home" }, // Renamed for a tech vibe
-    { icon: Bookmark, label: "The Collection", path: "/saved" }, 
+    { icon: Bookmark, label: "Your Collection", path: "/saved" }, 
   
   ];
 

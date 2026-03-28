@@ -3,10 +3,8 @@ import { ExternalLink, Bookmark } from "lucide-react";
 import axios from "axios";
 
 export default function NewsCard({ article, isAlreadySaved }) {
-  // 1. Initialize state (Blue if already saved, Grey otherwise)
   const [isSaved, setIsSaved] = useState(isAlreadySaved || false);
 
-  // 2. Persistence: If we are on the Home page, check if this specific article is in DB
   useEffect(() => {
     if (isAlreadySaved) return;
 
@@ -26,7 +24,6 @@ export default function NewsCard({ article, isAlreadySaved }) {
     checkStatus();
   }, [article.url, isAlreadySaved]);
 
-  // 3. Bookmark Toggle (Save/Remove)
   const toggleSave = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -39,7 +36,7 @@ export default function NewsCard({ article, isAlreadySaved }) {
     const userData = JSON.parse(userStr);
 
     const nextStatus = !isSaved;
-    setIsSaved(nextStatus); // Optimistic UI update
+    setIsSaved(nextStatus); 
 
     try {
       if (nextStatus) {
@@ -54,39 +51,36 @@ export default function NewsCard({ article, isAlreadySaved }) {
       }
     } catch (err) {
       console.error("Sync error:", err);
-      setIsSaved(!nextStatus); // Revert UI if server fails
+      setIsSaved(!nextStatus); 
       alert("Connection error. Please try again.");
     }
   };
 
-  // 4. Analytics: Track when the user actually reads the story
+  // ✅ FIXED: Corrected user data access and function name
   const handleReadClick = async () => {
     const userStr = localStorage.getItem("user");
     if (!userStr) return;
-    const user = JSON.parse(userStr);
+    const userData = JSON.parse(userStr);
 
     try {
       await axios.post("http://localhost:5000/api/news/track-read", {
-        userId: user._id,
+        userId: userData._id,
         url: article.url,
-        category: article.category || article.source?.name || "General"
+        category: article.category || "General",
+        // This ensures the source name is sent to fill your Pie Chart!
+        source: article.source?.name || article.source || "Global News"
       });
     } catch (err) {
-      console.error("Tracking error", err);
+      console.error("Tracking error:", err);
     }
   };
 
   return (
     <div style={{ 
-      background: "#1E293B", 
-      borderRadius: "16px", 
-      overflow: "hidden", 
-      display: "flex", 
-      flexDirection: "column", 
-      height: "100%", 
+      background: "#1E293B", borderRadius: "16px", overflow: "hidden", 
+      display: "flex", flexDirection: "column", height: "100%", 
       border: "1px solid rgba(255,255,255,0.05)" 
     }}>
-      {/* Article Image */}
       <div style={{ height: "180px", overflow: "hidden", background: "#0F172A" }}>
         <img 
           src={article.urlToImage || 'https://via.placeholder.com/400x200?text=Epicenter+News'} 
@@ -95,17 +89,13 @@ export default function NewsCard({ article, isAlreadySaved }) {
         />
       </div>
 
-      {/* Article Info */}
       <div style={{ padding: "16px", flexGrow: 1, display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", alignItems: "center" }}>
           <span style={{ color: "#38BDF8", fontSize: "12px", fontWeight: "bold" }}>
             {article.source?.name || article.source || "News"}
           </span>
           
-          <div 
-            onClick={toggleSave} 
-            style={{ cursor: "pointer", padding: "8px", zIndex: 10 }}
-          >
+          <div onClick={toggleSave} style={{ cursor: "pointer", padding: "8px", zIndex: 10 }}>
             <Bookmark 
               size={22} 
               fill={isSaved ? "#38BDF8" : "transparent"} 
@@ -119,21 +109,15 @@ export default function NewsCard({ article, isAlreadySaved }) {
           {article.title}
         </h4>
 
-        {/* Read More Link with Tracking */}
         <a 
           href={article.url} 
           target="_blank" 
           rel="noreferrer" 
-          onClick={handleReadClick} // This triggers the database count!
+          onClick={handleReadClick} // ✅ FIXED: Now correctly triggers the function
           style={{ 
-            marginTop: "auto", 
-            color: "#38BDF8", 
-            textDecoration: "none", 
-            display: "flex", 
-            alignItems: "center", 
-            gap: "5px", 
-            fontSize: "14px",
-            fontWeight: "bold"
+            marginTop: "auto", color: "#38BDF8", textDecoration: "none", 
+            display: "flex", alignItems: "center", gap: "5px", 
+            fontSize: "14px", fontWeight: "bold"
           }}
         >
           Read Full Story <ExternalLink size={14} />

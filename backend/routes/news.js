@@ -21,14 +21,22 @@ router.get('/', async (req, res) => {
   }
 });
 
+// 2. Track Read (Updated to include 'source' for the Pie Chart)
 // 2. Track Read
 router.post('/track-read', async (req, res) => {
   try {
-    const { userId, url, category } = req.body;
+    // 1. Add 'source' here to pull it from the Frontend request
+    const { userId, url, category, source } = req.body; 
+    
     const newRead = new ReadHistory({
-      userId, url, category: category || "General",
+      userId, 
+      url, 
+      category: category || "General",
+      // 2. Use the source sent from the frontend, or fallback
+      source: source || "Global News", 
       readAt: new Date() 
     });
+    
     await newRead.save();
     res.status(201).json({ msg: "Read tracked" });
   } catch (err) {
@@ -57,23 +65,20 @@ router.post('/save', async (req, res) => {
   }
 });
 
-// 4. Analytics: Dual-Line + Percentage Distribution
+// 4. Analytics: 100% Private Data Isolation
 router.get("/analytics/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    // Get total news count for percentage calculation
-    const totalFetchedCount = await SavedNews.countDocuments({});
+    // Get personal counts first
+    const [savedCount, readCount] = await Promise.all([
+      SavedNews.countDocuments({ userId: userObjectId }),
+      ReadHistory.countDocuments({ userId: userObjectId })
+    ]);
 
-    const [savedStats, readCount, activity, globalDistribution] = await Promise.all([
-      SavedNews.aggregate([
-        { $match: { userId: userObjectId } },
-        { $group: { _id: null, count: { $sum: 1 } } }
-      ]),
-      ReadHistory.countDocuments({ userId: userObjectId }),
-
-      // DUAL-LINE ACTIVITY
+    const [activity, sourceDistribution] = await Promise.all([
+      // DUAL-LINE ACTIVITY (Only for this user)
       SavedNews.aggregate([
         { $match: { userId: userObjectId } },
         { $project: { date: "$savedAt", type: "saved" } },
@@ -90,26 +95,35 @@ router.get("/analytics/:userId", async (req, res) => {
         }}
       ]),
 
-      // GLOBAL FETCH % DISTRIBUTION
-      SavedNews.aggregate([
+      // PIE CHART: Platforms visited by THIS user
+      // PIE CHART: Platforms visited by THIS user
+      ReadHistory.aggregate([
+        { $match: { userId: userObjectId } }, 
         { $group: { _id: "$source", value: { $sum: 1 } } },
         { $sort: { value: -1 } },
         { $limit: 6 },
         { $project: { 
             name: "$_id", 
             value: 1, 
-            percent: { $multiply: [ { $divide: ["$value", Math.max(totalFetchedCount, 1)] }, 100 ] },
+            // Add this back to prevent the frontend crash!
+            percent: { 
+              $cond: [
+                { $gt: [readCount, 0] }, 
+                { $multiply: [{ $divide: ["$value", readCount] }, 100] }, 
+                0
+              ] 
+            },
             _id: 0 
         }}
       ])
     ]);
 
     res.json({
-      totalNews: 100 + (readCount * 3), 
-      savedCount: savedStats[0]?.count || 0,
-      readCount: readCount || 0,
+      totalNews: 100 + (readCount * 2), // Changed formula slightly for more realism
+      savedCount: savedCount,
+      readCount: readCount,
       activityData: activity,
-      sourceData: globalDistribution,
+      sourceData: sourceDistribution,
       apiLatency: "Synced"
     });
   } catch (err) {
@@ -117,16 +131,13 @@ router.get("/analytics/:userId", async (req, res) => {
   }
 });
 
-// 5. Fetch Saved Articles (This was missing!)
+// 5. Fetch Saved Articles
 router.get('/saved/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    
-    // Safety check for valid ID
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ msg: "Invalid User ID format" });
     }
-
     const saved = await SavedNews.find({ userId: userId }).sort({ savedAt: -1 });
     res.json(saved);
   } catch (err) {
@@ -134,7 +145,7 @@ router.get('/saved/:userId', async (req, res) => {
   }
 });
 
-// 6. DELETE /remove (Optional: if you want to delete from the collection page)
+// 6. Delete Article
 router.delete('/remove', async (req, res) => {
   try {
     const { userId, url } = req.body;

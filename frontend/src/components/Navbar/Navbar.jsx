@@ -35,7 +35,7 @@ const Navbar = ({ userName }) => {
       position: "sticky",
       top: 0,
       zIndex: 1000,
-      borderBottom: "1px solid rgba(56, 189, 248, 0.1)",
+      borderBottom: "2.5px solid rgba(69, 196, 250, 0.1)",
     }}>
       
       {/* 1. BRAND LOGO - Hover: Glow grows and text slides */}
@@ -128,7 +128,7 @@ const Navbar = ({ userName }) => {
             color: "#c83232",
             fontWeight: "700",
             cursor: "pointer",
-            fontSize: "0.85rem",
+            fontSize: "1rem",
             ...transitionStyle
           }}
           onMouseEnter={(e) => {

@@ -17,7 +17,6 @@ export default function Dashboard({ userName }) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
 
-  // --- 1. DYNAMIC WELCOME LOGIC ---
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   
   const getGreeting = () => {
@@ -34,7 +33,6 @@ export default function Dashboard({ userName }) {
     return () => clearInterval(timer);
   }, []);
 
-  // --- 2. DATA FETCHING LOGIC (Merged & Smarter) ---
   const fetchDashboardData = async () => {
     setIsSyncing(true);
     try {
@@ -49,6 +47,7 @@ export default function Dashboard({ userName }) {
       const paddedActivity = dayNames.map(dayName => {
         const raw = res.data.activityData || [];
         const getDay = (d) => {
+          if(!d) return "";
           const [y, m, day] = d.split('-').map(Number);
           return new Date(y, m-1, day).toLocaleDateString('en-US', { weekday: 'short' });
         };
@@ -60,12 +59,14 @@ export default function Dashboard({ userName }) {
       if (res.data) {
         setStats({ ...res.data, activityData: paddedActivity, apiLatency: `${Date.now() - startTime}ms` });
         
-        // Dynamic Recommendation Logic
-        if (res.data.sourceData && res.data.sourceData.length > 0) {
+        // --- SAFE RECOMMENDATION LOGIC ---
+        // We use optional chaining ?. to ensure we don't crash if sourceData is empty
+        if (res.data.sourceData?.length > 0) {
           const topSector = res.data.sourceData.reduce((prev, current) => (prev.value > current.value) ? prev : current);
-          // Added cache-busting timestamp and sortBy for fresh news
-          const recRes = await axios.get(`http://localhost:5000/api/news?q=${topSector.name}&sortBy=publishedAt&t=${new Date().getTime()}`);
-          setRecommendation(recRes.data.articles[0]);
+          if (topSector?.name) {
+            const recRes = await axios.get(`http://localhost:5000/api/news?q=${topSector.name}&sortBy=publishedAt&t=${new Date().getTime()}`);
+            setRecommendation(recRes.data.articles?.[0] || null);
+          }
         }
       }
     } catch (err) { 
@@ -85,14 +86,9 @@ export default function Dashboard({ userName }) {
       {/* 1. DYNAMIC HERO SECTION */}
       <div style={{ 
         background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)", 
-        borderRadius: 32, 
-        padding: "40px 50px", 
-        marginBottom: 32, 
-        border: "1px solid rgba(56, 189, 248, 0.2)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        boxShadow: "0 20px 50px rgba(0,0,0,0.3)"
+        borderRadius: 32, padding: "40px 50px", marginBottom: 32, 
+        border: "1px solid rgba(56, 189, 248, 0.2)", display: "flex",
+        justifyContent: "space-between", alignItems: "center", boxShadow: "0 20px 50px rgba(0,0,0,0.3)"
       }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -101,24 +97,16 @@ export default function Dashboard({ userName }) {
               System Active • Nagpur Node
             </span>
           </div>
-          
           <h2 style={{ fontSize: "2.8rem", fontWeight: 800, margin: 0, letterSpacing: "-1px" }}>
-            {getGreeting()}, <span style={{ 
-              background: "linear-gradient(to right, #38BDF8, #8B5CF6)", 
-              WebkitBackgroundClip: "text", 
-              WebkitTextFillColor: "transparent" 
-            }}>{userName || "Agent"}</span>  👋 
+            {getGreeting()}, <span style={{ background: "linear-gradient(to right, #38BDF8, #8B5CF6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{userName || "Agent"}</span> 👋 
           </h2>
-          
           <p style={{ color: "#64748B", fontSize: "1.1rem", marginTop: 12, maxWidth: "522px", lineHeight: "1.6" }}>
-            Global data streams filtered. Your personalized intelligence briefing is synchronized and optimized for your focus.
+            Global data streams filtered. Your personalized intelligence briefing is synchronized.
           </p>
         </div>
 
         <div style={{ textAlign: "right", borderLeft: "1px solid rgba(255,255,255,0.1)", paddingLeft: 40 }}>
-          <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "white", fontFamily: "monospace" }}>
-            {currentTime}
-          </div>
+          <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "white", fontFamily: "monospace" }}>{currentTime}</div>
           <div style={{ color: "#38BDF8", fontWeight: 700, fontSize: "0.9rem", marginTop: 4 }}>
             {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
           </div>
@@ -162,86 +150,68 @@ export default function Dashboard({ userName }) {
       <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 24 }}>
         <div style={{ background: "#1E293B", padding: 28, borderRadius: 32, border: "1px solid rgba(255,255,255,0.05)" }}>
           <h4 style={{ color: "#94A3B8", fontSize: "1.2rem", fontWeight: 800, marginBottom: 20 }}>ENGAGEMENT FOOTPRINT</h4>
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart>
-              <Pie 
-                data={stats.sourceData} 
-                innerRadius={75} 
-                outerRadius={105} 
-                paddingAngle={12} 
-                dataKey="value" 
-                stroke="none" 
-                cornerRadius={12}
-                onMouseEnter={(_, index) => setActiveIndex(index)}
-                onMouseLeave={() => setActiveIndex(null)}
-                style={{ cursor: 'pointer' }}
-              >
-                {stats.sourceData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={COLORS[index % COLORS.length]} 
-                    style={{
-                      transform: activeIndex === index ? 'scale(1.08)' : 'scale(1)',
-                      transformOrigin: 'center',
-                      filter: activeIndex === index ? `drop-shadow(0 0 12px ${COLORS[index % COLORS.length]}90)` : 'none',
-                      transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                    }}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" />
-            </PieChart>
-          </ResponsiveContainer>
+          
+          {stats.sourceData && stats.sourceData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie 
+                  data={stats.sourceData} 
+                  innerRadius={75} outerRadius={105} paddingAngle={12} 
+                  dataKey="value" stroke="none" cornerRadius={12}
+                  onMouseEnter={(_, index) => setActiveIndex(index)}
+                  onMouseLeave={() => setActiveIndex(null)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {stats.sourceData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={COLORS[index % COLORS.length]} 
+                      style={{
+                        transform: activeIndex === index ? 'scale(1.08)' : 'scale(1)',
+                        transformOrigin: 'center',
+                        filter: activeIndex === index ? `drop-shadow(0 0 12px ${COLORS[index % COLORS.length]}90)` : 'none',
+                        transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                      }}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: 280, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+               <Activity size={48} style={{ color: "#475569", marginBottom: 15 }} />
+               <p style={{ color: "#94A3B8", fontWeight: 600 }}>No reading activity found.</p>
+               <p style={{ color: "#64748B", fontSize: "0.85rem" }}>Start reading news to see your footprint!</p>
+            </div>
+          )}
         </div>
 
         <div style={{ 
           background: `linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url(${recommendation?.urlToImage || ""})`,
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center',
-          padding: 28, 
-          borderRadius: 32, 
-          border: "1px solid rgba(56, 189, 248, 0.3)",
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'space-between',
-          minHeight: "280px",
-          boxShadow: "0 10px 30px rgba(139, 92, 246, 0.1)", 
-          transition: "all 0.4s ease-in-out"
+          backgroundSize: 'cover', backgroundPosition: 'center', padding: 28, borderRadius: 32, 
+          border: "1px solid rgba(56, 189, 248, 0.3)", display: 'flex', flexDirection: 'column', 
+          justifyContent: 'space-between', minHeight: "280px", transition: "all 0.4s ease-in-out"
         }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ background: '#38BDF8', padding: '6px', borderRadius: '8px' }}>
-                   <Sparkles size={16} color="#0F172A" />
-                </div>
-                <span style={{ color: "#38BDF8", fontSize: "0.7rem", fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>
-                  {isSyncing ? "ANALYZING PATTERNS..." : "PICKED FOR YOU"}
-                </span>
+                <div style={{ background: '#38BDF8', padding: '6px', borderRadius: '8px' }}><Sparkles size={16} color="#0F172A" /></div>
+                <span style={{ color: "#38BDF8", fontSize: "0.7rem", fontWeight: 800, textTransform: 'uppercase' }}>{isSyncing ? "SYNCING..." : "PICKED FOR YOU"}</span>
               </div>
-              <RefreshCcw 
-                size={14} 
-                color="#475569" 
-                style={{ cursor: 'pointer', transition: '0.3s' }} 
-                onClick={fetchDashboardData} 
-              />
+              <RefreshCcw size={14} color="#475569" style={{ cursor: 'pointer' }} onClick={fetchDashboardData} />
             </div>
-
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, lineHeight: 1.4, color: 'white', margin: 0 }}>
-              {recommendation ? recommendation.title : "Scanning your interest nodes for fresh intel..."}
+              {recommendation ? recommendation.title : "Ready for your first briefing?"}
             </h3>
-            
             {recommendation && (
               <p style={{ color: "#94A3B8", fontSize: "0.85rem", marginTop: "10px", display: "-webkit-box", WebkitLineClamp: "2", WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                 {recommendation.description}
               </p>
             )}
           </div>
-          
-          <button 
-            onClick={() => recommendation && window.open(recommendation.url, '_blank')}
-            style={{ width: '100%', padding: '14px', borderRadius: '16px', background: '#38BDF8', color: '#0F172A', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: "20px" }}
-          >
+          <button onClick={() => recommendation && window.open(recommendation.url, '_blank')} style={{ width: '100%', padding: '14px', borderRadius: '16px', background: '#38BDF8', color: '#0F172A', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: "20px" }}>
             Read Full Story <ArrowRight size={18} />
           </button>
         </div>
@@ -249,14 +219,12 @@ export default function Dashboard({ userName }) {
 
       {/* 5. STRATEGIC COMMAND */}
       <div style={{ marginBottom: 40, marginTop: 32 }}>
-        <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: 20, letterSpacing: '0.5px' }}>
-          STRATEGIC COMMAND
-        </h3>
+        <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: 20 }}>STRATEGIC COMMAND</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
           {[
             { icon: Newspaper, label: "Live Feed", desc: "Top global headlines in real-time", to: "/category/general", gradient: "linear-gradient(135deg, #0F172A, #334155)", badge: "Live" },
-            { icon: Bookmark, label: "The Collection", desc: "Your 16 pinned intelligence reports", to: "/saved", gradient: "linear-gradient(135deg, #1e3a8a, #3b82f6)", badge: "Safe" },
-            { icon: Zap, label: "CTech Trends", desc: "Latest software & AI breakthroughs", to: "/category/Technology", gradient: "linear-gradient(135deg, #1e293b, #0ea5e9)", badge: "Hot"  },
+            { icon: Bookmark, label: "The Collection", desc: "Your pinned intelligence reports", to: "/saved", gradient: "linear-gradient(135deg, #1e3a8a, #3b82f6)", badge: "Safe" },
+            { icon: Zap, label: "Tech Trends", desc: "Latest software & AI breakthroughs", to: "/category/Technology", gradient: "linear-gradient(135deg, #1e293b, #0ea5e9)", badge: "Hot"  },
           ].map((action) => (
             <QuickActionCard key={action.label} {...action} navigate={navigate} />
           ))}
@@ -272,13 +240,11 @@ function QuickActionCard({ icon: Icon, label, desc, to, gradient, badge, navigat
   return (
     <div 
       onClick={() => navigate(to)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ background: "#1E293B", border: `1px solid ${hover ? glow : "rgba(255,255,255,0.06)"}`, borderRadius: 24, padding: "24px", cursor: "pointer", transition: "all 0.3s", boxShadow: hover ? `0 15px 30px -10px ${glow}40` : "none" }}
+      style={{ background: "#1E293B", border: `1px solid ${hover ? glow : "rgba(255,255,255,0.06)"}`, borderRadius: 24, padding: "24px", cursor: "pointer", transition: "all 0.3s" }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18 }}>
-        <div style={{ width: 48, height: 48, background: gradient, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: hover ? `0 0 20px ${glow}` : "none" }}>
-          <Icon size={22} color="white" />
-        </div>
-        <span style={{ fontSize: "0.9rem", fontWeight: 700, padding: "16px 11px", borderRadius: 20, background: "rgba(56, 189, 248, 0.1)", color: "#38BDF8", border: "1px solid rgba(56, 189, 248, 0.2)" }}>{badge}</span>
+        <div style={{ width: 48, height: 48, background: gradient, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={22} color="white" /></div>
+        <span style={{ fontSize: "0.9rem", fontWeight: 700, padding: "6px 12px", borderRadius: 20, background: "rgba(56, 189, 248, 0.1)", color: "#38BDF8" }}>{badge}</span>
       </div>
       <h4 style={{ fontSize: "1.1rem", fontWeight: 700, margin: "0 0 8px" }}>{label}</h4>
       <p style={{ fontSize: "0.85rem", color: "#94A3B8", margin: "0 0 18px", lineHeight: 1.4 }}>{desc}</p>
@@ -292,31 +258,11 @@ function QuickActionCard({ icon: Icon, label, desc, to, gradient, badge, navigat
 const AnalyticsBox = ({ icon: Icon, label, value, unit, color }) => {
   const [hover, setHover] = useState(false);
   return (
-    <div 
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{ 
-        background: "#121926", 
-        border: `1.5px solid ${hover ? color : `${color}40`}`, 
-        borderRadius: 24, 
-        padding: 24, 
-        height: 160, 
-        display: "flex", 
-        flexDirection: "column", 
-        justifyContent: "space-between",
-        transition: 'all 0.3s ease',
-        transform: hover ? "translateY(-5px)" : "none",
-        cursor: 'pointer'
-      }}
-    >
-      <div style={{ width: 44, height: 44, background: color, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Icon size={24} color="#0F172A" strokeWidth={3} />
-      </div>
+    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{ background: "#121926", border: `1.5px solid ${hover ? color : `${color}40`}`, borderRadius: 24, padding: 24, height: 160, display: "flex", flexDirection: "column", justifyContent: "space-between", transition: 'all 0.3s ease', transform: hover ? "translateY(-5px)" : "none", cursor: 'pointer' }}>
+      <div style={{ width: 44, height: 44, background: color, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={24} color="#0F172A" strokeWidth={3} /></div>
       <div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-          <span style={{ fontSize: "2.4rem", fontWeight: 900, color: "white" }}>{value}</span>
-          <span style={{ fontSize: "0.85rem", color: "#64748B" }}>{unit}</span>
-        </div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}><span style={{ fontSize: "2.4rem", fontWeight: 900, color: "white" }}>{value}</span><span style={{ fontSize: "0.85rem", color: "#64748B" }}>{unit}</span></div>
         <div style={{ fontSize: "0.85rem", color: color, fontWeight: 800, marginTop: 4 }}>{label}</div>
       </div>
     </div>
@@ -324,15 +270,19 @@ const AnalyticsBox = ({ icon: Icon, label, value, unit, color }) => {
 };
 
 const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    const { name, value, percent } = payload[0].payload;
+  if (active && payload && payload.length && payload[0].payload) {
+    const data = payload[0].payload;
+    const name = data.name ? String(data.name).toUpperCase() : "UNKNOWN SOURCE";
+    const percent = data.percent !== undefined ? Number(data.percent).toFixed(1) : "0.0";
+    const value = data.value || 0;
+
     return (
       <div style={{ background: '#0F172A', border: '1px solid #38BDF8', padding: '12px 16px', borderRadius: 16 }}>
-        <p style={{ margin: 0, fontWeight: 800, color: payload[0].fill }}>{name.toUpperCase()}</p>
-        <p style={{ margin: '4px 0 0', fontSize: '1.4rem', fontWeight: 900 }}>{percent.toFixed(1)}%</p>
+        <p style={{ margin: 0, fontWeight: 800, color: payload[0].fill }}>{name}</p>
+        <p style={{ margin: '4px 0 0', fontSize: '1.4rem', fontWeight: 900 }}>{percent}%</p>
         <p style={{ margin: 0, fontSize: '0.7rem', color: '#94A3B8' }}>{value} Articles Discovered</p>
       </div>
     );
   }
   return null;
-}; 
+};
