@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import NewsCard from "../components/News/NewsCard";
 
-const API_BASE_URL = "https://epicenter-backend.onrender.com";
+const API_BASE_URL = "https://epicenter-jggn.onrender.com";
 
 export default function SavedNews() {
   const [articles, setArticles] = useState([]);

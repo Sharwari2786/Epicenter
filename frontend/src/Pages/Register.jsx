@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { User, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 
-const API_BASE_URL = "https://epicenter-backend.onrender.com";
+const API_BASE_URL = "https://epicenter-jggn.onrender.com";
 
 export default function Register() {
   const navigate = useNavigate();

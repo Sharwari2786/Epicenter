@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ExternalLink, Bookmark } from "lucide-react";
 import axios from "axios";
 
-const API_BASE_URL = "https://epicenter-backend.onrender.com";
+const API_BASE_URL = "https://epicenter-jggn.onrender.com";
 
 export default function NewsCard({ article, isAlreadySaved }) {
   const [isSaved, setIsSaved] = useState(isAlreadySaved || false);

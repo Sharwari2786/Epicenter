@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://epicenter-backend.onrender.com";
+const API_BASE_URL = "https://epicenter-jggn.onrender.com";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Newspaper, Bookmark, Globe, Zap, ArrowRight, Activity, Rss, Sparkles, RefreshCcw, } from "lucide-react";
