@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { ExternalLink, Bookmark } from "lucide-react";
 import axios from "axios";
 
+const API_BASE_URL = "https://epicenter-backend.onrender.com";
+
 export default function NewsCard({ article, isAlreadySaved }) {
   const [isSaved, setIsSaved] = useState(isAlreadySaved || false);
 
+  // 1. Initial Check: See if this article is already in our collection
   useEffect(() => {
     if (isAlreadySaved) return;
 
@@ -14,7 +17,7 @@ export default function NewsCard({ article, isAlreadySaved }) {
       const userData = JSON.parse(userStr);
 
       try {
-        const res = await axios.get(`http://localhost:5000/api/news/saved/${userData._id}`);
+        const res = await axios.get(`${API_BASE_URL}/api/news/saved/${userData._id}`);
         const found = res.data.some((item) => item.url === article.url);
         if (found) setIsSaved(true);
       } catch (err) {
@@ -24,6 +27,7 @@ export default function NewsCard({ article, isAlreadySaved }) {
     checkStatus();
   }, [article.url, isAlreadySaved]);
 
+  // 2. Toggle Logic: Save or Remove article
   const toggleSave = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -40,12 +44,12 @@ export default function NewsCard({ article, isAlreadySaved }) {
 
     try {
       if (nextStatus) {
-        await axios.post("http://localhost:5000/api/news/save", {
+        await axios.post(`${API_BASE_URL}/api/news/save`, {
           article: article,
           userId: userData._id,
         });
       } else {
-        await axios.delete("http://localhost:5000/api/news/remove", {
+        await axios.delete(`${API_BASE_URL}/api/news/remove`, {
           data: { userId: userData._id, url: article.url },
         });
       }
@@ -56,18 +60,17 @@ export default function NewsCard({ article, isAlreadySaved }) {
     }
   };
 
-  // ✅ FIXED: Corrected user data access and function name
+  // 3. Tracking Logic: Send data to Dashboard Pie Chart
   const handleReadClick = async () => {
     const userStr = localStorage.getItem("user");
     if (!userStr) return;
     const userData = JSON.parse(userStr);
 
     try {
-      await axios.post("http://localhost:5000/api/news/track-read", {
+      await axios.post(`${API_BASE_URL}/api/news/track-read`, {
         userId: userData._id,
         url: article.url,
         category: article.category || "General",
-        // This ensures the source name is sent to fill your Pie Chart!
         source: article.source?.name || article.source || "Global News"
       });
     } catch (err) {
@@ -113,7 +116,7 @@ export default function NewsCard({ article, isAlreadySaved }) {
           href={article.url} 
           target="_blank" 
           rel="noreferrer" 
-          onClick={handleReadClick} // ✅ FIXED: Now correctly triggers the function
+          onClick={handleReadClick} 
           style={{ 
             marginTop: "auto", color: "#38BDF8", textDecoration: "none", 
             display: "flex", alignItems: "center", gap: "5px", 

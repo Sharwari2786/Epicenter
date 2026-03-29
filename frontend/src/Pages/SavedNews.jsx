@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import NewsCard from "../components/News/NewsCard";
 
+const API_BASE_URL = "https://epicenter-backend.onrender.com";
+
 export default function SavedNews() {
-  // Use 'articles' consistently
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,20 +13,16 @@ export default function SavedNews() {
       try {
         const userStr = localStorage.getItem("user");
         if (!userStr) return;
-        
         const user = JSON.parse(userStr);
-        const targetUrl = `http://localhost:5000/api/news/saved/${user._id}`;
+        // FIX: Replaced localhost with API_BASE_URL
+        const targetUrl = `${API_BASE_URL}/api/news/saved/${user._id}`;
 
         const res = await axios.get(targetUrl);
-        
-        // 1. Fixed the function name to match your useState
         setArticles(res.data); 
-        
-        // 2. MUST call this to hide the "Loading..." text
         setLoading(false); 
       } catch (err) {
         console.error("Error fetching collection:", err);
-        setLoading(false); // Stop loading even if it fails
+        setLoading(false);
       }
     };
     fetchSaved();

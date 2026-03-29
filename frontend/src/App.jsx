@@ -2,7 +2,7 @@ import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Navbar from "./components/Navbar/Navbar";
-import Footer from "./components/Footer/Footer"; // Ensure this path is correct
+import Footer from "./components/Footer/Footer"; 
 import Dashboard from "./Pages/Dashboard";
 import Home from "./Pages/Home";
 import SavedNews from "./Pages/SavedNews";
@@ -13,24 +13,26 @@ function App() {
   const location = useLocation();
   const [userName, setUserName] = useState(localStorage.getItem("userName") || "");
 
-  // Update userName whenever the location changes (after login/logout)
+  // --- THE FIX: Reactive State for Layout ---
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    // Initial check to prevent the "Ghost Gap" on first load
+    handleResize(); 
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     const savedName = localStorage.getItem("userName");
-    if (savedName) {
-      setUserName(savedName);
-    } else {
-      setUserName("");
-    }
+    setUserName(savedName || "");
   }, [location]);
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
-  // 1. Authorization Guard: If not logged in and not on an auth page, go to login
-  if (!userName && !isAuthPage) {
-    return <Navigate to="/login" />;
-  }
+  if (!userName && !isAuthPage) return <Navigate to="/login" />;
 
-  // 2. Auth Layout (Login/Register with the Amazon Prime background)
   if (isAuthPage) {
     return (
       <Routes>
@@ -40,45 +42,35 @@ function App() {
     );
   }
 
-  // 3. Main Application Layout (Dashboard, Home, Saved)
   return (
-    <div style={{ display: "flex", background: "#0F172A", minHeight: "100vh" }}>
-      {/* Sidebar stays fixed at 240px */}
+    <div style={{ display: "flex", background: "#0F172A", minHeight: "100vh", overflowX: "hidden" }}>
+      {/* Sidebar handles its own sliding logic */}
       <Sidebar />
       
       {/* Main Content Wrapper */}
       <div style={{ 
-        marginLeft: "240px", 
+        // Syncing the margin with the state
+        marginLeft: isMobile ? "0" : "260px", 
         flex: 1, 
         display: "flex", 
         flexDirection: "column",
-        minHeight: "100vh" 
+        minHeight: "100vh",
+        width: "100%",
+        transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)" 
       }}>
         
-        {/* Top Navigation */}
         <Navbar userName={userName ? userName.split(" ")[0] : "User"} />
 
-        {/* Main Routing Area - flex: 1 pushes footer to the bottom */}
-        <main style={{ padding: "20px", flex: 1 }}>
+        <main style={{ padding: isMobile ? "10px" : "20px", flex: 1 }}>
           <Routes>
-            {/* Dashboard / Welcome Page */}
             <Route path="/" element={<Dashboard userName={userName ? userName.split(" ")[0] : "User"} />} />
-            
-            {/* News Feed Page */}
             <Route path="/home" element={<Home />} />
-            
-            {/* Saved News Page */}
             <Route path="/saved" element={<SavedNews />} />
-
-            {/* Category Redirects */}
             <Route path="/category/Technology" element={<Navigate to="/home?category=technology" />} />
-
-            {/* Global Redirect for unknown routes */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
 
-        {/* 4. The Glassmorphism Footer */}
         <Footer /> 
       </div>
     </div>

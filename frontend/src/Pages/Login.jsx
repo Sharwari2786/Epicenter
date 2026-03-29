@@ -1,74 +1,32 @@
 import { useState } from "react";
-
 import axios from "axios";
-
 import { useNavigate, Link } from "react-router-dom";
-
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 
-
+const API_BASE_URL = "https://epicenter-backend.onrender.com";
 
 export default function Login() {
-
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({ email: "", password: "" });
-
-  const [showPassword, setShowPassword] = useState(false); // Eye Toggle State
-
-
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
-
     e.preventDefault();
-
-   
-
     try {
-
-      const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-
-     
-
+      // FIX: Replaced localhost with API_BASE_URL
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, formData);
+      
       if (res.status === 200) {
-
-        // 1. Save everything to storage
-
         localStorage.setItem("user", JSON.stringify(res.data.user));
-
         localStorage.setItem("userName", res.data.user.name);
-
         localStorage.setItem("isLoggedIn", "true");
-
-
-
-        alert(`Welcome back, ${res.data.user.name}!`);
-
-
-
-        // 2. THE FIX: Use window.location.href instead of navigate("/")
-
-        // This forces the entire App to reload and see the "isLoggedIn" as TRUE.
-
         window.location.href = "/";
-
       }
-
     } catch (err) {
-
-      console.error("Login Error:", err);
-
-      const errorMsg = err.response?.data?.msg || "Server connection failed.";
-
+      const errorMsg = err.response?.data?.msg || "Login failed.";
       alert(errorMsg);
-
     }
-
   };
-
-
-
- 
 
   return (
 

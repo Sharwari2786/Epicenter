@@ -1,49 +1,28 @@
 import { useState } from "react";
-
 import axios from "axios";
-
 import { useNavigate } from "react-router-dom";
-
 import { User, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 
-
+const API_BASE_URL = "https://epicenter-backend.onrender.com";
 
 export default function Register() {
-
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
-
-  const [showPassword, setShowPassword] = useState(false); // Eye Toggle State
-
-
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async (e) => {
-
     e.preventDefault();
-
     try {
-
-      const res = await axios.post("http://localhost:5000/api/auth/register", formData);
-
+      // FIX: Replaced localhost with API_BASE_URL
+      const res = await axios.post(`${API_BASE_URL}/api/auth/register`, formData);
       if (res.status === 201) {
-
-        alert("Account Created Successfully! Log in now.");
-
+        alert("Account Created Successfully!");
         navigate("/login");
-
       }
-
     } catch (err) {
-
-      alert(err.response?.data?.msg || "Registration failed. Try again.");
-
+      alert(err.response?.data?.msg || "Registration failed.");
     }
-
   };
-
-
-
   return (
 
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0F172A", padding: "20px" }}>

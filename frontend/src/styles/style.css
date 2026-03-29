@@ -35,3 +35,9 @@ body {
               0 10px 10px -5px rgba(56, 189, 248, 0.2); /* Combined shadow and blue glow */
 }
 
+@media (max-width: 1024px) {
+  .main-content-wrapper {
+    margin-left: 0 !important;
+    padding: 15px !important;
+  }
+}

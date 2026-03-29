@@ -1,3 +1,4 @@
+const API_BASE_URL = "https://epicenter-backend.onrender.com";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Newspaper, Bookmark, Globe, Zap, ArrowRight, Activity, Rss, Sparkles, RefreshCcw, } from "lucide-react";
@@ -13,10 +14,22 @@ export default function Dashboard({ userName }) {
     activityData: [], sourceData: []
   });
 
+  // --- RESPONSIVE LOGIC FROM V1 ---
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isTablet, setIsTablet] = useState(window.innerWidth >= 768 && window.innerWidth < 1100);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768); 
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1100);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [recommendation, setRecommendation] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
-
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   
   const getGreeting = () => {
@@ -41,7 +54,7 @@ export default function Dashboard({ userName }) {
       const user = JSON.parse(userStr);
       const startTime = Date.now();
       
-      const res = await axios.get(`http://localhost:5000/api/news/analytics/${user._id}`);
+      const res = await axios.get(`${API_BASE_URL}/api/news/analytics/${user._id}`);
       
       const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
       const paddedActivity = dayNames.map(dayName => {
@@ -58,37 +71,41 @@ export default function Dashboard({ userName }) {
 
       if (res.data) {
         setStats({ ...res.data, activityData: paddedActivity, apiLatency: `${Date.now() - startTime}ms` });
-        
-        // --- SAFE RECOMMENDATION LOGIC ---
-        // We use optional chaining ?. to ensure we don't crash if sourceData is empty
         if (res.data.sourceData?.length > 0) {
           const topSector = res.data.sourceData.reduce((prev, current) => (prev.value > current.value) ? prev : current);
           if (topSector?.name) {
-            const recRes = await axios.get(`http://localhost:5000/api/news?q=${topSector.name}&sortBy=publishedAt&t=${new Date().getTime()}`);
+            const recRes = await axios.get(`${API_BASE_URL}/api/news?q=${topSector.name}&sortBy=publishedAt&t=${new Date().getTime()}`);
             setRecommendation(recRes.data.articles?.[0] || null);
           }
         }
       }
-    } catch (err) { 
-      console.error("Sync Failed:", err); 
-    } finally {
-      setIsSyncing(false);
-    }
+    } catch (err) { console.error("Sync Failed:", err); } finally { setIsSyncing(false); }
   };
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  useEffect(() => { fetchDashboardData(); }, []);
 
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "20px", color: 'white', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ 
+      maxWidth: 1100, 
+      margin: "0 auto", 
+      padding: isMobile ? "15px" : "20px", 
+      color: 'white', 
+      fontFamily: 'Inter, sans-serif' 
+    }}>
       
-      {/* 1. DYNAMIC HERO SECTION */}
+      {/* 1. DYNAMIC HERO SECTION - Responsive Layout */}
       <div style={{ 
         background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)", 
-        borderRadius: 32, padding: "40px 50px", marginBottom: 32, 
-        border: "1px solid rgba(56, 189, 248, 0.2)", display: "flex",
-        justifyContent: "space-between", alignItems: "center", boxShadow: "0 20px 50px rgba(0,0,0,0.3)"
+        borderRadius: 32, 
+        padding: isMobile ? "30px 25px" : "40px 50px", 
+        marginBottom: 32, 
+        border: "1px solid rgba(56, 189, 248, 0.2)", 
+        display: "flex",
+        flexDirection: isMobile ? "column" : "row",
+        justifyContent: "space-between", 
+        alignItems: isMobile ? "flex-start" : "center", 
+        boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
+        gap: isMobile ? "24px" : "0"
       }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -97,40 +114,49 @@ export default function Dashboard({ userName }) {
               System Active • Nagpur Node
             </span>
           </div>
-          <h2 style={{ fontSize: "2.8rem", fontWeight: 800, margin: 0, letterSpacing: "-1px" }}>
+          <h2 style={{ fontSize: isMobile ? "2.2rem" : "2.8rem", fontWeight: 800, margin: 0, letterSpacing: "-1px" }}>
             {getGreeting()}, <span style={{ background: "linear-gradient(to right, #38BDF8, #8B5CF6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{userName || "Agent"}</span> 👋 
           </h2>
-          <p style={{ color: "#64748B", fontSize: "1.1rem", marginTop: 12, maxWidth: "522px", lineHeight: "1.6" }}>
+          <p style={{ color: "#64748B", fontSize: isMobile ? "1rem" : "1.1rem", marginTop: 12, maxWidth: "522px", lineHeight: "1.6" }}>
             Global data streams filtered. Your personalized intelligence briefing is synchronized.
           </p>
         </div>
 
-        <div style={{ textAlign: "right", borderLeft: "1px solid rgba(255,255,255,0.1)", paddingLeft: 40 }}>
-          <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "white", fontFamily: "monospace" }}>{currentTime}</div>
+        <div style={{ 
+          textAlign: isMobile ? "left" : "right", 
+          borderLeft: isMobile ? "none" : "1px solid rgba(255,255,255,0.1)", 
+          paddingLeft: isMobile ? 0 : 40 
+        }}>
+          <div style={{ fontSize: isMobile ? "2.2rem" : "2.5rem", fontWeight: 800, color: "white", fontFamily: "monospace" }}>{currentTime}</div>
           <div style={{ color: "#38BDF8", fontWeight: 700, fontSize: "0.9rem", marginTop: 4 }}>
             {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
           </div>
           <div style={{ marginTop: 15, background: "rgba(56, 189, 248, 0.1)", padding: "6px 12px", borderRadius: 10, color: "#38BDF8", fontSize: "0.75rem", fontWeight: 800, display: "inline-block" }}>
-             PING: {stats.apiLatency}
+              PING: {stats.apiLatency}
           </div>
         </div>
       </div>
 
-      {/* 2. ANALYTICS BOXES */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 20, marginBottom: 32 }}>
+      {/* 2. ANALYTICS BOXES - Responsive Grid */}
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(4,1fr)", 
+        gap: 20, 
+        marginBottom: 32 
+      }}>
         {[
           { icon: Globe, label: "Total News", value: stats.totalNews, unit: "fetched", color: "#38BDF8" }, 
           { icon: Bookmark, label: "Saved News", value: stats.savedCount, unit: "items", color: "#8B5CF6" }, 
           { icon: Activity, label: "Read News", value: stats.readCount, unit: "clicks", color: "#10B981" }, 
           { icon: Rss, label: "API Sync", value: stats.apiLatency, unit: "LATENCY", color: "#F59E0B" }
         ].map(item => (
-          <AnalyticsBox key={item.label} {...item} />
+          <AnalyticsBox key={item.label} {...item} isMobile={isMobile} />
         ))}
       </div>
 
-      {/* 3. DUAL LINE GRAPH */}
-      <div style={{ background: "#192030", padding: 30, borderRadius: 32, height: 420, marginBottom: 32, border: "1px solid rgba(255,255,255,0.05)" }}>
-        <h4 style={{ color: "#94A3B8", fontSize: "1.2rem", fontWeight: 800, marginBottom: 20 }}>PERSONAL ACTIVITY PULSE</h4>
+      {/* 3. DUAL LINE GRAPH - Responsive Height */}
+      <div style={{ background: "#192030", padding: isMobile ? 20 : 30, borderRadius: 32, height: isMobile ? 320 : 420, marginBottom: 32, border: "1px solid rgba(255,255,255,0.05)" }}>
+        <h4 style={{ color: "#94A3B8", fontSize: isMobile ? "1rem" : "1.2rem", fontWeight: 800, marginBottom: 20 }}>PERSONAL ACTIVITY PULSE</h4>
         <ResponsiveContainer width="100%" height="90%">
           <AreaChart data={stats.activityData}>
             <defs>
@@ -146,17 +172,17 @@ export default function Dashboard({ userName }) {
         </ResponsiveContainer>
       </div>
 
-      {/* 4. PIE CHART & DISCOVERY CARD */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 24 }}>
+      {/* 4. PIE CHART & DISCOVERY CARD - Stacks on Mobile */}
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.2fr 1fr", gap: 24 }}>
         <div style={{ background: "#1E293B", padding: 28, borderRadius: 32, border: "1px solid rgba(255,255,255,0.05)" }}>
-          <h4 style={{ color: "#94A3B8", fontSize: "1.2rem", fontWeight: 800, marginBottom: 20 }}>ENGAGEMENT FOOTPRINT</h4>
+          <h4 style={{ color: "#94A3B8", fontSize: isMobile ? "1rem" : "1.2rem", fontWeight: 800, marginBottom: 20 }}>ENGAGEMENT FOOTPRINT</h4>
           
           {stats.sourceData && stats.sourceData.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie 
                   data={stats.sourceData} 
-                  innerRadius={75} outerRadius={105} paddingAngle={12} 
+                  innerRadius={isMobile ? 60 : 75} outerRadius={isMobile ? 90 : 105} paddingAngle={12} 
                   dataKey="value" stroke="none" cornerRadius={12}
                   onMouseEnter={(_, index) => setActiveIndex(index)}
                   onMouseLeave={() => setActiveIndex(null)}
@@ -176,7 +202,7 @@ export default function Dashboard({ userName }) {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" />
+                <Legend verticalAlign={isMobile ? "bottom" : "middle"} align={isMobile ? "center" : "right"} layout={isMobile ? "horizontal" : "vertical"} iconType="circle" />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -192,7 +218,7 @@ export default function Dashboard({ userName }) {
           background: `linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url(${recommendation?.urlToImage || ""})`,
           backgroundSize: 'cover', backgroundPosition: 'center', padding: 28, borderRadius: 32, 
           border: "1px solid rgba(56, 189, 248, 0.3)", display: 'flex', flexDirection: 'column', 
-          justifyContent: 'space-between', minHeight: "280px", transition: "all 0.4s ease-in-out"
+          justifyContent: 'space-between', minHeight: "280px"
         }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -217,10 +243,10 @@ export default function Dashboard({ userName }) {
         </div>
       </div>
 
-      {/* 5. STRATEGIC COMMAND */}
+      {/* 5. STRATEGIC COMMAND - Responsive Grid */}
       <div style={{ marginBottom: 40, marginTop: 32 }}>
-        <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: 20 }}>STRATEGIC COMMAND</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
+        <h3 style={{ fontSize: isMobile ? "1.1rem" : "1.2rem", fontWeight: 800, marginBottom: 20 }}>STRATEGIC COMMAND</h3>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: 18 }}>
           {[
             { icon: Newspaper, label: "Live Feed", desc: "Top global headlines in real-time", to: "/category/general", gradient: "linear-gradient(135deg, #0F172A, #334155)", badge: "Live" },
             { icon: Bookmark, label: "The Collection", desc: "Your pinned intelligence reports", to: "/saved", gradient: "linear-gradient(135deg, #1e3a8a, #3b82f6)", badge: "Safe" },
@@ -234,6 +260,7 @@ export default function Dashboard({ userName }) {
   );
 }
 
+// Subcomponents
 function QuickActionCard({ icon: Icon, label, desc, to, gradient, badge, navigate }) {
   const [hover, setHover] = useState(false);
   const glow = gradient.match(/#[a-fA-F0-0]{3,6}/)?.[0] || "#38BDF8";
@@ -255,14 +282,22 @@ function QuickActionCard({ icon: Icon, label, desc, to, gradient, badge, navigat
   );
 }
 
-const AnalyticsBox = ({ icon: Icon, label, value, unit, color }) => {
+const AnalyticsBox = ({ icon: Icon, label, value, unit, color, isMobile }) => {
   const [hover, setHover] = useState(false);
   return (
     <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ background: "#121926", border: `1.5px solid ${hover ? color : `${color}40`}`, borderRadius: 24, padding: 24, height: 160, display: "flex", flexDirection: "column", justifyContent: "space-between", transition: 'all 0.3s ease', transform: hover ? "translateY(-5px)" : "none", cursor: 'pointer' }}>
+      style={{ 
+        background: "#121926", border: `1.5px solid ${hover ? color : `${color}40`}`, 
+        borderRadius: 24, padding: 24, height: isMobile ? 140 : 160, 
+        display: "flex", flexDirection: "column", justifyContent: "space-between", 
+        transition: 'all 0.3s ease', transform: hover ? "translateY(-5px)" : "none", cursor: 'pointer' 
+      }}>
       <div style={{ width: 44, height: 44, background: color, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={24} color="#0F172A" strokeWidth={3} /></div>
       <div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}><span style={{ fontSize: "2.4rem", fontWeight: 900, color: "white" }}>{value}</span><span style={{ fontSize: "0.85rem", color: "#64748B" }}>{unit}</span></div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+          <span style={{ fontSize: isMobile ? "1.8rem" : "2.4rem", fontWeight: 900, color: "white" }}>{value}</span>
+          <span style={{ fontSize: "0.85rem", color: "#64748B" }}>{unit}</span>
+        </div>
         <div style={{ fontSize: "0.85rem", color: color, fontWeight: 800, marginTop: 4 }}>{label}</div>
       </div>
     </div>

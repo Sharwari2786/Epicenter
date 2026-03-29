@@ -1,3 +1,4 @@
+const API_BASE_URL = "https://epicenter-backend.onrender.com";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; 
 import axios from "axios";
@@ -9,24 +10,19 @@ export default function Home() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Define your categories here
   const categories = ["General", "Technology", "Business", "Sports", "Entertainment", "Health", "Science"];
-
-  // Extract variables from the URL
   const searchParams = new URLSearchParams(location.search);
   const currentCategory = searchParams.get("category") || "general";
   const currentQuery = searchParams.get("q");
-  
-  // This is for your Heading text
   const displayTerm = currentQuery || currentCategory;
 
   useEffect(() => {
     const fetchNews = async () => {
       setLoading(true);
       try {
-        // Use the query if it exists, otherwise use the category
         const searchTerm = currentQuery || currentCategory;
-        const targetUrl = `http://localhost:5000/api/news?q=${searchTerm}`;
+        // FIX: Replaced localhost with API_BASE_URL
+        const targetUrl = `${API_BASE_URL}/api/news?q=${searchTerm}`;
         
         const res = await axios.get(targetUrl);
         setArticles(res.data.articles || []);
@@ -36,9 +32,8 @@ export default function Home() {
         setLoading(false);
       }
     };
-
     fetchNews();
-  }, [location.search]); // Listens for ?q= or ?category= changes
+  }, [location.search]);
 
   const buttonStyle = (isActive) => ({
     padding: "10px 22px",
